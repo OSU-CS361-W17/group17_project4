@@ -37,7 +37,7 @@ class MainTest {
 
     @Test
     public void testGetModel() {
-        TestResponse res = request("GET", "http://localhost:4567/model", null);
+        TestResponse res = request("GET", "http://localhost:4567/model/true", null);
         assertEquals(200, res.status);
         //assertEquals("MODEL",res.body);
     }
@@ -47,7 +47,7 @@ class MainTest {
         BattleshipModel test = new BattleshipModel();
         Gson gson = new Gson();
         String model = gson.toJson(test);
-        TestResponse res = request("POST", "http://localhost:4567/placeShip/battleShip/1/1/horizontal", model);
+        TestResponse res = request("POST", "http://localhost:4567/placeShip/battleship/1/1/horizontal", model);
         assertEquals(res.status, 200);
     }
 
@@ -56,7 +56,7 @@ class MainTest {
         BattleshipModel test = new BattleshipModel();
         Gson gson = new Gson();
         String model = gson.toJson(test);
-        TestResponse res = request("POST", "http://localhost:4567/placeShip/battleShip/11/11/horizontal", model);
+        TestResponse res = request("POST", "http://localhost:4567/placeShip/battleship/11/11/horizontal", model);
         assertEquals(res, null);
     }
 
@@ -132,10 +132,10 @@ class MainTest {
     // have to place user ships for fire or scan trests to work
     //else we get a 500 error.
     private void placeShipsUser(BattleshipModel bm){
-        bm.placeShip("AircraftCarrier", "1", "1" ,"horizontal" );
-        bm.placeShip("Battleship", "2", "2" ,"horizontal" );
-        bm.placeShip("Submarine", "3", "3" ,"horizontal" );
-        bm.placeShip("Clipper", "4", "4" ,"horizontal" );
-        bm.placeShip("Dinghy", "5", "5" ,"horizontal" );
+        bm.placeShip("aircraftCarrier", "1", "1" ,"horizontal" );
+        bm.placeShip("battleship", "2", "2" ,"horizontal" );
+        bm.placeShip("submarine", "3", "3" ,"horizontal" );
+        bm.placeShip("clipper", "4", "4" ,"horizontal" );
+        bm.placeShip("dinghy", "5", "5" ,"horizontal" );
     }
 }
