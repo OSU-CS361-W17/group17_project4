@@ -2,17 +2,44 @@ var gameModel;
 var selectedID = null;
 var selectedFireClass = null;
 var ships_placed = false;
-$( document ).ready(getModel());
 
-function getModel () {
-  // Handler for .ready() called.
-  $.getJSON("model", function( json ) {
+//hides the modal for the game select mode and sends the request to get the new model.
+function startGame(){
+    //hides modal
+    toHide  = document.getElementById("startGame");
+    toHide.classList.remove("notHidden");
+    toHide.classList.add("hidden");
+    //hides grayed out background
+    toHide = document.getElementsByClassName("startGameCont");
+    toHide[0].classList.remove("notHidden");
+    toHide[0].classList.add("hidden");
+    toHide[0].classList.remove("startGameCont");
+
+    //gets the elements for the radio buttons
+    hardMode = document.getElementById("hardMode");
+    easyMode = document.getElementById("easyMode");
+
+    //sends the correct request for the getModel function.
+    if(hardMode.checked) {
+        getModel("false");
+    } else {
+        getModel("true");
+    }
+}
+
+function getModel (gameMode) {
+  // user selects game mode and this is called from startGame
+  url = "model/"+ gameMode;
+  $.getJSON(url, function( json ) {
   gameModel = json;
   displayGameState(gameModel);
+  //disables buttons so that the user can't do any thing
+  //before they place the ships
   disableButton('scanButton');
   disableButton('fireButton');
   disableButton('placeShipButton');
     //console.log( "JSON Data: " + json );
+    //tells the user what to do.
     displayMessage("Please place all of your ships by selecting the cell you would like to place the ship at and selecting the orientation of the ship. Then click the place button.");
    });
  }
@@ -22,7 +49,7 @@ function getModel () {
     location.reload();
  }
 
-
+//sends the request for the place ship function
 function placeShip() {
     for(var i=1; i < 11; i++){
                 for(var j=1; j < 11; j++){
@@ -58,10 +85,13 @@ function placeShip() {
      dataType: "json"
    });
 
+   //deals with what to do once the request is done.
    request.done(function( currModel ) {
      document.querySelector('input[name="ship"]:checked').disabled = true;
      document.getElementById(radioID).parentNode.style.color = "grey";
      var id = getNextButton(radioID);
+     //if all the ships are placed enable the user to do
+     //game operations and disable the place ship buttons
      if(id == "NONE"){
         disableButton('placeShipButton');
         document.getElementById('horizontalRadio').disabled = true;
@@ -83,13 +113,14 @@ function placeShip() {
      gameModel = currModel;
 
    });
-
+    // if teh request fails the the user what went wrong
    request.fail(function( jqXHR, textStatus ) {
      var message = "Illegal Move: " + jqXHR.responseText + ". Please Try Again.";
      displayMessage(message);
    });
 }
 
+//gets the next non disabled radio button
 function getNextButton(id){
     var myRadioButtons = document.getElementsByClassName('shipRadio');
     for(i = 0; i < 5; i++){
@@ -101,15 +132,19 @@ function getNextButton(id){
 }
 
 
-
+//deals with a scan request.
 function scan(){
+//gets the selected cell
 if(selectedID != null)
         document.getElementById(selectedID).style.border = "1px solid black";
+//gets the params for the scan location
 var selected_row = parseInt(document.getElementById('fireRowLabel').innerHTML);
 var selected_col = parseInt(document.getElementById('fireColLabel').innerHTML);
 var message = "You Scaned at (" + selected_row + ", " + selected_col + "):";
+//tells the user what they did.
 displayMessage(message);
 
+//sends the request for the scan.
 var request = $.ajax({
      url: "/scan/"+selected_row+"/"+selected_col,
      method: "post",
@@ -117,6 +152,7 @@ var request = $.ajax({
      contentType: "application/json; charset=utf-8",
      dataType: "json"
    });
+   // let the user know what we found after we scaned.
     request.done(function( currModel ) {
 
         if(currModel.scanResult)
@@ -129,6 +165,7 @@ var request = $.ajax({
      appendMessage(message);
    });
 
+//if it fails let the user know there was an error
  request.fail(function( jqXHR, textStatus ) {
      displayMessage( "Error in Scan");
    });
@@ -137,12 +174,14 @@ var request = $.ajax({
 
 }
 
-
+//deals with a fire request.
 function fire(){
+//gets the location of where we would like to fire.
 if(selectedID != null)
         document.getElementById(selectedID).style.border = "1px solid black";
  var selected_row = document.getElementById('fireRowLabel').innerHTML;
  var selected_col = document.getElementById('fireColLabel').innerHTML;
+ //tells the user what they just did.
  var message = "You Fired at (" + selected_row + ", " + selected_col + ")";
  displayMessage(message);
  //document.getElementsByClassName(selectedFireClass)[1].style.border = "1px solid black";
@@ -155,6 +194,7 @@ if(selectedID != null)
      contentType: "application/json; charset=utf-8",
      dataType: "json"
    });
+   //displays the game state and lets the user know if they sunk a ship.
    request.done(function( currModel ) {
      displayGameState(currModel);
      gameModel = currModel;
@@ -167,6 +207,7 @@ if(selectedID != null)
         appendMessage("You Sunk the Computers " + gameModel.enemySunkShip + ".");
      }
    });
+    //updates score. and displays victory message
     function parseGameModel(gameModel){
     document.getElementById("playerScore").innerHTML = gameModel.computerShipsSunk.length;
     document.getElementById("computerScore").innerHTML = gameModel.playerShipsSunk.length;
@@ -186,6 +227,7 @@ if(selectedID != null)
     }
 
     }
+    // lets the user know what went wrong if the request fails
    request.fail(function( jqXHR, textStatus ) {
      var message = "Ilegal move: " + jqXHR.responseText + ". Please Try Again.";
      displayMessage(message);
@@ -194,10 +236,12 @@ if(selectedID != null)
     //selectedFireClass = null;
 }
 
+//logs stuff so i don't have to type console.log all the time
 function log(logContents){
     console.log(logContents);
 }
 
+//disables a single button based on id
 function disableButton(id){
 document.getElementById(id).disabled = true;
 $(id).css("cursor", "default !important");
@@ -208,6 +252,7 @@ document.getElementById(id).style.textShadow = "0px 1px 0px black";
 
 }
 
+//endables a button based on id
 function enableButton(id){
 document.getElementById(id).disabled = false;
 $(id).css("cursor", "pointer !important");
@@ -233,10 +278,13 @@ document.getElementById(id).style.textShadow = "0px 1px 0px #DC143C";
 }
 }
 
+//displays the game state.
 function displayGameState(gameModel){
 $( '#MyBoard td'  ).css("background-color", "blue");
 $( '#TheirBoard td'  ).css("background-color", "blue");
 
+//so the user can't try and send a request to fire or
+//to scan with out selecting a coord.
 disableButton('scanButton');
 disableButton('fireButton');
 
@@ -250,6 +298,7 @@ displayShip(gameModel.submarine);
 
 
 /*
+FOR DEBUGING
 displayEnemyShip(gameModel.computer_aircraftCarrier);
 displayEnemyShip(gameModel.computer_battleship);
 displayEnemyShip(gameModel.computer_clipper);
@@ -277,6 +326,7 @@ for (var i = 0; i < gameModel.playerHits.length; i++) {
 
 }
 
+//highlights the cell you clicked on
 function cellPlaceClick(id){
     if(ships_placed == false){
         enableButton('placeShipButton');
@@ -336,6 +386,7 @@ function cellPlaceClick(id){
 
 }
 
+
 function cellFireClick(id){
 
 
@@ -364,18 +415,20 @@ function cellFireClick(id){
 
 }
 
-
+//displays a message
 function displayMessage(toDisplay){
     var destination = document.getElementById('messageBox');
     destination.innerHTML = toDisplay;
  }
 
+//appends message written in the function above
  function appendMessage(toAppend){
     var destination = document.getElementById('messageBox');
     var current = destination.innerHTML;
     destination.innerHTML = current + " " + toAppend;
  }
 
+//gets the ship length
 function getShipLength(){
     var ship = document.querySelector('input[name="ship"]:checked').value;
     if(ship == "aircraftCarrier")
@@ -390,6 +443,8 @@ function getShipLength(){
         return 1;
 
 }
+
+//gets the orientation of the ship. so it can be highlighted later
 function getOrientation(){
     var orientation = document.querySelector('input[name="orientation"]:checked').value;
     if(orientation == "horizontal")
@@ -398,6 +453,7 @@ function getOrientation(){
         return "vertical"
 }
 
+//displays a ship
 function displayShip(ship){
  startCoordAcross = ship.start.Across;
  startCoordDown = ship.start.Down;
@@ -419,6 +475,7 @@ function displayShip(ship){
  }
  }
 
+//displays an enemy ship for debugging
 function displayEnemyShip(ship){
 
  startCoordAcross = ship.start.Across;
@@ -438,7 +495,3 @@ function displayEnemyShip(ship){
     }
  }
  }
-
-
-
-

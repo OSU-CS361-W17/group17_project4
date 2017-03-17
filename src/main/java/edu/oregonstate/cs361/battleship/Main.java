@@ -25,7 +25,7 @@ public class Main {
         staticFiles.location("/public");
 
         //This will listen to GET requests to /model and return a clean new model
-        get("/model", (req, res) -> newModel());
+        get("/model/:gameMode", (req, res) -> newModel(req));
         //This will listen to POST requests and expects to receive a game model, as well as location to fire to
         post("/fire/:row/:col", (req, res) -> fireAt(req, res));
         //This will listen to POST requests and expects to receive a game model, as well as location to place the ship
@@ -34,8 +34,13 @@ public class Main {
     }
 
     //This function returns a new model
-    private static String newModel() {
-        BattleshipModel bm = new BattleshipModel();
+    private static String newModel(Request req) {
+        String gameMode = req.params("gameMode");
+        BattleshipModel bm;
+        if(gameMode.equals("true")){
+            bm = new BattleshipModel(true);
+        } else
+            bm = new BattleshipModel(false);
         Gson gson = new Gson();
         return gson.toJson(bm);
     }
@@ -71,13 +76,11 @@ public class Main {
         String col = req.params("col");
         int rowInt = Integer.parseInt(row);
         int colInt = Integer.parseInt(col);
-        String result = currModel.shootAtComputer(rowInt,colInt);
+        String result = currModel.fire(rowInt,colInt);
         if(result != null) {
             res.status(400);
             return result;
-        } else //(result == null)
-            //currModel.smartShootAtPlayer();
-            currModel.easyComputerFire();
+        }
         Gson gson = new Gson();
         return gson.toJson(currModel);
     }
@@ -89,7 +92,6 @@ public class Main {
         int rowInt = Integer.parseInt(row);
         int colInt = Integer.parseInt(col);
         currModel.scan(rowInt, colInt);
-        currModel.shootAtPlayer();
         Gson gson = new Gson();
         return gson.toJson(currModel);
     }
