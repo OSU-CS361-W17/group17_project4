@@ -60,6 +60,7 @@ public class BattleshipModel {
 
     //Maximum board size
     private static final int BOARD_SIZE = 10;
+    private boolean easyMode;
 
     public BattleshipModel() {
         playerHits = new ArrayList<>();
@@ -99,7 +100,70 @@ public class BattleshipModel {
         lastFired = null;
         firstFireHit = null;
         fireDirection = null;
+        easyMode = false;
     }
+
+    public BattleshipModel(boolean gameMode) {
+        playerHits = new ArrayList<>();
+        playerMisses= new ArrayList<>();
+        computerHits = new ArrayList<>();
+        computerMisses= new ArrayList<>();
+        playerShipPoints = new ArrayList<>();
+        computerShipPoints = new ArrayList<>();
+
+        computerShipsSunk = new ArrayList<>();
+        playerShipsSunk = new ArrayList<>();
+
+        enemyMilitaryShips = new MilitaryShip[3];
+        enemyCivilianShips = new CivilianShip[2];
+        playerMilitaryShips = new MilitaryShip[3];
+        playerCivilianShips = new CivilianShip[2];
+
+
+        computer_aircraftCarrier = (MilitaryShip) placeEnemyShip("Computer_AircraftCarrier", 5,gameMode);
+        computer_battleship = (MilitaryShip) placeEnemyShip("Computer_Battleship",4,gameMode);
+        computer_submarine = (MilitaryShip) placeEnemyShip("Computer_Submarine",2,gameMode);
+        computer_clipper = (CivilianShip) placeEnemyShip("Computer_Clipper",3,gameMode);
+        computer_dinghy = (CivilianShip) placeEnemyShip("Computer_Dinghy",1,gameMode);
+
+        enemyMilitaryShips[0] = (computer_aircraftCarrier);
+        enemyMilitaryShips[1] = (computer_battleship);
+        enemyMilitaryShips[2] = (computer_submarine);
+        enemyCivilianShips[0] = (computer_clipper);
+        enemyCivilianShips[1] = (computer_dinghy);
+
+        mySunkShip = null;
+        enemySunkShip = null;
+
+        scanResult = false;
+
+        smart_AI_Fire = false;
+        lastFired = null;
+        firstFireHit = null;
+        fireDirection = null;
+        easyMode = gameMode;
+
+    }
+
+    //replaces fireAtComputer and chooses correct
+    // computer fireing mode based on game mode.
+    public String fire(int row, int col) {
+        String result = shootAtComputer(row, col);
+        if(result == null){
+            chooseFire();
+        }
+        return result;
+    }
+
+    //chooses the correct fire function based on if the game mode.
+    public void chooseFire() {
+        if(easyMode) {
+            easyComputerFire();
+        } else {
+            smartShootAtPlayer();
+        }
+    }
+
 // Refactored getShip into a case statement instead of a mass of cluttered if statements. -GH
     public Ship getShip(String shipName) {
         switch(shipName) {
@@ -679,6 +743,7 @@ updates the cooresponding arrays with the ships points */
                 if(shipToCheck.isVisible())
                     scanResult = true;
         }
+        chooseFire(); //fires at the player ships
 
 
     }

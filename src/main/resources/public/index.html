@@ -10,7 +10,20 @@
 <script src="/js/app.js"></script>
 
 <body>
+<div id="startGameCont" class="notHidden, startGameCont">
+    <div id="startGame" class="notHidden">
+        <h2>Please Choose Game Mode</h2>
+        <p>In easy mode the computer places the ships the same spot every time and fires in a predicible pattern</p>
+        <p>In hard mode the computer fires randomly and will try to sink your ships and places ships randomly</p>
+        <form action="" name="selectGameMode">
+            <label><input id="easyMode" class="myRadio" type="radio" name="modeSelect" value="easyMode" checked="checked">Easy Mode</label>
+            <label><input id="hardMode" class="myRadio" type="radio" name="modeSelect" value="horizontal">Hard Mode</label><br>
+        </form>
+        <button class="myButton" id="startButton" onclick="startGame()">Start Game</button>
+    </div>
+</div>
 <h1 id = "myheader">BATTLESHIP</h1>
+
 <div id="endGame" class="endMsgOuter">
     <div id="victory" class="endMsgInner">
         <h2>VICTORY!</h2>
