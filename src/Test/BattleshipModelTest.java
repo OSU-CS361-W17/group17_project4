@@ -212,6 +212,35 @@ public class BattleshipModelTest {
 
     }
 
+    @Test
+    public void easyComputerFire(){
+        //Places a ship on each row and attempts to fire 3 times
+        int i = 0;
+        model = new BattleshipModel();
+        model.placeShip("clipper","1","1","horizontal");
+        model.placeShip("aircraftCarrier","2","1","horizontal");
+        model.placeShip("submarine","3","1","horizontal");
+        model.placeShip("battleship","4","1","horizontal");
+        model.placeShip("dinghy","5","1","horizontal");
+
+        //Fire once, computer should hit and sink clipper
+        model.easyComputerFire();
+        assertEquals(3,model.getHitArraySize() );
+
+        //Fire 2 more times, computer should have 3 hits and 2 misses
+        model.easyComputerFire();
+        model.easyComputerFire();
+        assertEquals(3,model.getHitArraySize() ); //hits
+        assertEquals(2,model.getMissArraySize() ); //misses
+
+        //Fire 50 times, should have 45 misses and 10 hits with this ship positioning
+        for(i=0;i<50;i++)
+            model.easyComputerFire();
+
+        assertEquals(10,model.getHitArraySize());
+        assertEquals(45,model.getMissArraySize());
+    }
+
     //this test fires at both civilian ships
     //build a new model and shoots at the other end of the clipper
     @Test
