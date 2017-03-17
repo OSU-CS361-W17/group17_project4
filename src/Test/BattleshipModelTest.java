@@ -554,6 +554,11 @@ public class BattleshipModelTest {
     @Test
     public void scan() throws Exception {
         boolean result;
+        model.placeShip("battleship","1","8","vertical");
+        model.placeShip("aircraftCarrier","2","1","horizontal");
+        model.placeShip("submarine","3","1","horizontal");
+        model.placeShip("clipper","4","1","horizontal");
+        model.placeShip("dinghy","5","1","horizontal");
 
         //Scan main board, may return true or false
         model.scan(1,1);
